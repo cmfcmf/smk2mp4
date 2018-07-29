@@ -2,6 +2,8 @@
   return Module['return'];
 }
 
-if (typeof(exports) !== 'undefined') {
-  ffmpeg_run.call(this);
+if (typeof module !== "undefined") {
+  module.exports = fn; 
+} else {
+  self['ffmpeg_run'] = fn;
 }
