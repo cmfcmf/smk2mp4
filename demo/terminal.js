@@ -2,6 +2,7 @@
 var worker;
 var sampleImageData;
 var sampleVideoData;
+var sampleSMKData;
 var outputElement;
 var filesElement;
 var running = false;
@@ -11,7 +12,7 @@ var isSupported = (function() {
 })();
 
 function isReady() {
-  return !running && isWorkerLoaded && sampleImageData && sampleVideoData;
+  return !running && isWorkerLoaded && sampleImageData && sampleVideoData && sampleSMKData;
 }
 
 function startRunning() {
@@ -55,6 +56,21 @@ function retrieveSampleVideo() {
   oReq.send(null);
 }
 
+function retrieveSMK() {
+  var oReq = new XMLHttpRequest();
+  oReq.open("GET", "input.smk", true);
+  oReq.responseType = "arraybuffer";
+
+  oReq.onload = function (oEvent) {
+    var arrayBuffer = oReq.response;
+    if (arrayBuffer) {
+      sampleSMKData = new Uint8Array(arrayBuffer);
+    }
+  };
+
+  oReq.send(null);
+}
+
 function parseArguments(text) {
   text = text.replace(/\s+/g, ' ');
   var args = [];
@@ -89,7 +105,8 @@ function runCommand(text) {
           {
             "name": "input.webm",
             "data": sampleVideoData
-          }
+          },
+          {"name": "input.smk", "data": sampleSMKData},
         ]
       });
     } else {
@@ -104,7 +121,8 @@ function runCommand(text) {
           {
             "name": "input.webm",
             "data": sampleVideoData
-          }
+          },
+          {"name": "input.smk", "data": sampleSMKData},
         ]
       });
     }
@@ -123,6 +141,7 @@ function getDownloadLink(fileData, fileName) {
   else {
     var a = document.createElement('a');
     a.download = fileName;
+    console.log(fileData);
     var blob = new Blob([fileData]);
     var src = window.URL.createObjectURL(blob);
     a.href = src;
@@ -163,6 +182,7 @@ document.addEventListener("DOMContentLoaded", function() {
   initWorker();
   retrieveSampleVideo();
   retrieveSampleImage();
+  retrieveSMK();
 
   var inputElement = document.querySelector("#input");
   outputElement = document.querySelector("#output");
